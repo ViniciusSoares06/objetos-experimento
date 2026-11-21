@@ -1,6 +1,7 @@
 import pytest
 from src.pedidos import Pedido, StatusPedido
 
+# Checkpoint 8 minutos
 
 def test_calculo_subtotal_e_peso_total():
     itens = [
