@@ -18,6 +18,9 @@ class Pedido:
         if not itens:
             raise ValueError("A lista de itens não pode estar vazia")
 
+        for item in itens:
+            item.
+
         self.cliente_id = cliente_id
         self.itens = itens
         self.cep_destino = str(cep_destino).strip()
