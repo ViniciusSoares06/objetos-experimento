@@ -1,5 +1,5 @@
 def cupom_valido(catalogo, codigo, subtotal):
-    if codigo not in catalogo:
+    if codigo not in catalogo.keys():
         return False
     minimo, _ = catalogo[codigo]
     return subtotal > minimo
