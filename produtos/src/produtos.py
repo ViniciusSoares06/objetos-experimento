@@ -9,7 +9,7 @@ class Produto:
         preco: float,
         quantidade: int,
         estoque_minimo: int,
-        estoque_maximo: int
+        estoque_maximo: int,
     ):
         if not sku or not isinstance(sku, str):
             raise ValueError("SKU inválido")
@@ -21,6 +21,8 @@ class Produto:
             raise ValueError("Quantidade não pode ser negativa")
         if estoque_minimo < 0:
             raise ValueError("Estoque mínimo não pode ser negativo")
+        if estoque_maximo <= estoque_minimo:
+            raise ValueError("Estoque máximo não pode ser maior que o estoque mínimo")
 
         self.sku = sku.strip().upper()
         self.nome = nome
@@ -66,6 +68,9 @@ class CatalogoEstoque:
             raise ValueError("Quantidade a remover deve ser maior que zero")
 
         produto = self.produtos[sku_normalizado]
+        if quantidade >= produto.quantidade:
+            raise ValueError("Quantidade de produtos insuficiente")
+
         # Realiza a baixa do estoque
         produto.quantidade -= quantidade
         return produto.quantidade
@@ -85,8 +90,7 @@ class CatalogoEstoque:
 
         categoria_normalizada = categoria.strip().upper()
         produtos_afetados = [
-            p for p in self.produtos.values()
-            if categoria_normalizada in p.categoria
+            p for p in self.produtos.values() if categoria_normalizada in p.categoria
         ]
 
         if not produtos_afetados:
