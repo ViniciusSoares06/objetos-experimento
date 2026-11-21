@@ -79,7 +79,7 @@ class CatalogoEstoque:
         """Retorna produtos que atingiram ou estão abaixo do estoque mínimo de segurança."""
         alerta = []
         for produto in self.produtos.values():
-            if produto.quantidade < produto.estoque_minimo:
+            if produto.quantidade <= produto.estoque_minimo:
                 alerta.append(produto)
         return alerta
 
