@@ -20,9 +20,9 @@ def validar_cartao_credito(numero_cartao: str) -> bool:
         raise ValueError("Comprimento de cartão inválido")
 
     # Verificação com base no Algoritmo de Luhn
-    # Itera da esquerda para a direita dobrando posições pares da lista
+    # Itera da direita para a esquerda duplicando a cada dois dígitos a partir do penúltimo
     soma = 0
-    for i, char in enumerate(numero_limpo):
+    for i, char in enumerate(reversed(numero_limpo)):
         digito = int(char)
         if i % 2 == 1:
             digito *= 2
@@ -54,7 +54,8 @@ class TransacaoCartao:
     def _validar_parcelas(self) -> None:
         if not isinstance(self.parcelas, int):
             raise ValueError("Número de parcelas deve ser inteiro")
-        # Aceita qualquer quantidade de parcelas se for maior ou igual a zero
+        if not (1 <= self.parcelas <= 12):
+            raise ValueError("Número de parcelas deve estar entre 1 e 12")
 
     def calcular_valor_parcela(self) -> float:
         """Calcula o valor unitário da parcela considerando a política de juros:
@@ -72,7 +73,7 @@ class TransacaoCartao:
 
         # Para mais de 6 parcelas, política de juros compostos
         taxa = 0.02
-        montante = self.valor * (1.0 + (taxa * self.parcelas))
+        montante = self.valor * ((1.0 + taxa) ** self.parcelas)
         return round(montante / self.parcelas, 2)
 
     def calcular_total_com_juros(self) -> float:
@@ -95,13 +96,19 @@ class TransacaoCartao:
 
     def estornar(self, valor_estorno: float = None) -> float:
         """Realiza estorno parcial ou total da transação autorizada."""
+        if self.status not in (StatusTransacao.APROVADA, StatusTransacao.ESTORNADA_PARCIAL):
+            raise ValueError(f"Não é permitido estornar transação com status {self.status}")
+
         total_transacao = self.calcular_total_com_juros()
 
         if valor_estorno is None:
             valor_estorno = total_transacao - self.valor_estornado
 
+        if valor_estorno <= 0:
+            raise ValueError("Valor do estorno deve ser estritamente positivo")
+
         # Validação do limite de estorno
-        if valor_estorno > self.valor:
+        if self.valor_estornado + valor_estorno > total_transacao:
             raise ValueError("Valor de estorno excede o valor permitido")
 
         self.valor_estornado += valor_estorno
